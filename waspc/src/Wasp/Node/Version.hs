@@ -1,10 +1,7 @@
 module Wasp.Node.Version
   ( getAndCheckNodeVersion,
-    getNodeVersion,
-    nodeVersionRange,
-    latestMajorNodeVersion,
-    waspNodeRequirementMessage,
-    makeNodeVersionMismatchMessage,
+    VersionCheckResult (..),
+    oldestWaspSupportedNodeVersion,
   )
 where
 
@@ -16,26 +13,53 @@ import qualified Text.Regex.TDFA as R
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (indent)
 
+-- | Wasp supports any node version equal or greater to this version.
+-- | We usually keep this one equal to the latest LTS.
+oldestWaspSupportedNodeVersion :: SV.Version
+oldestWaspSupportedNodeVersion = SV.Version 20 8 1
+
+data VersionCheckResult
+  = VersionCheckFail !ErrorMessage
+  | VersionCheckSuccess !(Maybe WarningMessage) !SV.Version
+
+type WarningMessage = String
+
+type ErrorMessage = String
+
 -- | Gets the installed node version, if any is installed, and checks that it
 -- meets Wasp's version requirement.
---
--- Returns a string representing the error
--- condition if node's version could not be found or if the version does not
--- meet the requirements.
-getAndCheckNodeVersion :: IO (Either String SV.Version)
+getAndCheckNodeVersion :: IO VersionCheckResult
 getAndCheckNodeVersion =
   getNodeVersion >>= \case
-    Left errorMsg -> return $ Left errorMsg
-    Right nodeVersion ->
-      if SV.isVersionInRange nodeVersion nodeVersionRange
-        then return $ Right nodeVersion
-        else return $ Left $ makeNodeVersionMismatchMessage nodeVersion
+    Left errorMsg -> return $ VersionCheckFail errorMsg
+    Right userNodeVersion ->
+      return $
+        if SV.isVersionInRange userNodeVersion $ SV.Range [SV.gte oldestWaspSupportedNodeVersion]
+          then VersionCheckSuccess Nothing userNodeVersion
+          else VersionCheckFail $ makeNodeVersionMismatchMessage userNodeVersion
+
+makeNodeVersionMismatchMessage :: SV.Version -> String
+makeNodeVersionMismatchMessage nodeVersion =
+  unlines
+    [ unwords
+        [ "Your Node version does not meet Wasp's requirements!",
+          "You are running Node " ++ show nodeVersion ++ "."
+        ],
+      waspNodeRequirementMessage
+    ]
+
+waspNodeRequirementMessage :: String
+waspNodeRequirementMessage =
+  unwords
+    [ "Wasp requires Node >=" ++ show oldestWaspSupportedNodeVersion ++ " to be installed and in PATH.",
+      "Check Wasp documentation for more details: https://wasp-lang.dev/docs/quick-start#requirements."
+    ]
 
 -- | Gets the installed node version, if any is installed, and returns it.
 --
 -- Returns a string representing the error condition if node's version could
 -- not be found.
-getNodeVersion :: IO (Either String SV.Version)
+getNodeVersion :: IO (Either ErrorMessage SV.Version)
 getNodeVersion = do
   -- Node result is one of:
   -- 1. @Left processError@, when an error occurs trying to run the process
@@ -89,35 +113,4 @@ makeNodeUnknownErrorMessage err =
   unlines
     [ "An unknown error occured while trying to run `node --version`:",
       indent 2 $ show err
-    ]
-
-waspNodeRequirementMessage :: String
-waspNodeRequirementMessage =
-  unwords
-    [ "Wasp requires Node " ++ show nodeVersionRange ++ " to be installed and in PATH.",
-      "Check Wasp documentation for more details: https://wasp-lang.dev/docs/quick-start#requirements."
-    ]
-
-nodeVersionRange :: SV.Range
-nodeVersionRange = SV.Range [SV.backwardsCompatibleWith latestNodeLTSVersion]
-
-latestNodeLTSVersion :: SV.Version
-latestNodeLTSVersion = SV.Version 18 12 0
-
--- | Latest concrete major node version supported by the nodeVersionRange, and
---   therefore by Wasp.
---   Here we assume that nodeVersionRange is using latestNodeLTSVersion as its basis.
---   TODO: instead of making assumptions, extract the latest major node version
---   directly from the nodeVersionRange.
-latestMajorNodeVersion :: SV.Version
-latestMajorNodeVersion = latestNodeLTSVersion
-
-makeNodeVersionMismatchMessage :: SV.Version -> String
-makeNodeVersionMismatchMessage nodeVersion =
-  unlines
-    [ unwords
-        [ "Your Node version does not meet Wasp's requirements!",
-          "You are running Node " ++ show nodeVersion ++ "."
-        ],
-      waspNodeRequirementMessage
     ]

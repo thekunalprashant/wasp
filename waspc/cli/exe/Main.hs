@@ -73,10 +73,13 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- to be more robust than trying to only check for commands that require it.
   -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
   NodeVersion.getAndCheckNodeVersion >>= \case
-    Left errorMsg -> do
+    NodeVersion.VersionCheckFail errorMsg -> do
       cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
       exitFailure
-    Right _ -> pure ()
+    NodeVersion.VersionCheckSuccess maybeWarning _version ->
+      case maybeWarning of
+        Just warnMsg -> cliSendMessage $ Message.Warning "Node version warning" warnMsg
+        Nothing -> pure ()
 
   case commandCall of
     Command.Call.New newArgs -> runCommand $ createNewProject newArgs
