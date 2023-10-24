@@ -14,7 +14,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Welcome, new Waspeteer 🐝!
 
-To install Wasp on Linux / OSX / WSL(Win), open your terminal and run: 
+To install Wasp on Linux / OSX / WSL(Win), open your terminal and run:
 
 ```shell
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
@@ -50,11 +50,11 @@ Check [More Details](#more-details) section below if anything went wrong, or if 
 
 ------
 
-## More details 
+## More details
 
 ### Requirements
 
-You must have Node.js (and NPM) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.2`).
+You must have a sufficiently up-to-date version of Node.js (and NPM) installed on your machine and available in `PATH`.
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -68,12 +68,12 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Then, install a version of Node.js that you need:
   ```shell
-  nvm install 18
+  nvm install 20
   ```
 
   Finally, whenever you need to ensure a specific version of Node.js is used, run:
   ```shell
-  nvm use 18
+  nvm use 20
   ```
   to set the Node.js version for the current shell session.
 
