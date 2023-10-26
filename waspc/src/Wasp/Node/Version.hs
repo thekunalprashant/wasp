@@ -16,7 +16,7 @@ import Wasp.Util (indent)
 -- | Wasp supports any node version equal or greater to this version.
 -- | We usually keep this one equal to the latest LTS.
 oldestWaspSupportedNodeVersion :: SV.Version
-oldestWaspSupportedNodeVersion = SV.Version 20 8 1
+oldestWaspSupportedNodeVersion = SV.Version 20 0 0
 
 data VersionCheckResult
   = VersionCheckFail !ErrorMessage
@@ -51,7 +51,7 @@ makeNodeVersionMismatchMessage nodeVersion =
 waspNodeRequirementMessage :: String
 waspNodeRequirementMessage =
   unwords
-    [ "Wasp requires Node >=" ++ show oldestWaspSupportedNodeVersion ++ " to be installed and in PATH.",
+    [ "Wasp requires that you use at least Node version " ++ show oldestWaspSupportedNodeVersion ++ " or higher. Also, node binary must be available in the PATH.",
       "Check Wasp documentation for more details: https://wasp-lang.dev/docs/quick-start#requirements."
     ]
 

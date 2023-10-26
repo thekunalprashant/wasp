@@ -2,12 +2,12 @@
 
 ## [WIP] 0.12.0
 
-### ⚠️ [Breaking change] Wasp now works with any Node version >= 20.8.1
+### ⚠️ [Breaking change] Wasp now works with any Node version >= 20
 So far, Wasp required specific Node version that is compatible with latest LTS Node (lately that was 18).
 
-We relaxed that constraint so it works with any Node version older than the oldest LTS version that Wasp supports.
+We relaxed that constraint so it works with any Node version newer than the oldest LTS version that Wasp supports.
 
-We also updated the oldest LTS version that Wasp supports to 20.8.1.
+We also updated the oldest LTS version that Wasp supports to Node 20.
 
 ## 0.11.6
 

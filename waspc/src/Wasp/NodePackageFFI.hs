@@ -19,7 +19,7 @@ import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
-import qualified Wasp.Node.Version as V
+import qualified Wasp.Node.Version as NodeVersion
 
 data Package
   = DeployPackage
@@ -53,11 +53,11 @@ scriptInPackageDir = [relfile|dist/index.js|]
 -- the dependencies.
 getPackageProcessOptions :: Package -> [String] -> IO P.CreateProcess
 getPackageProcessOptions package args = do
-  V.getAndCheckNodeVersion >>= \case
+  NodeVersion.getAndCheckNodeVersion >>= \case
     -- We don't print the warning message here because `wasp CLI` already likely printed it,
     -- so it would be too much noise.
-    V.VersionCheckSuccess _maybeWarning _version -> pure ()
-    V.VersionCheckFail errorMsg -> do
+    NodeVersion.VersionCheckSuccess _maybeWarning _version -> pure ()
+    NodeVersion.VersionCheckFail errorMsg -> do
       hPutStrLn stderr errorMsg
       exitFailure
   packageDir <- getPackageDir package
